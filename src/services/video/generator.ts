@@ -285,6 +285,7 @@ export class VideoGeneratorService {
           captionConfig,
           outputLanguage,
           captionStructure,
+          userId: this.user.id, // Pass user ID for watermark detection
         }),
         VideoGeneratorService.SCRIPT_GENERATION_TIMEOUT,
         "Template generation timed out"
@@ -400,6 +401,7 @@ export class VideoGeneratorService {
           captionConfig,
           outputLanguage,
           captionStructure,
+          userId: this.user.id, // Pass user ID for watermark detection
         }),
         VideoGeneratorService.SCRIPT_GENERATION_TIMEOUT,
         "Template generation timed out"

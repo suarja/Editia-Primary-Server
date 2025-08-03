@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VideoValidationService } from '../validation-service';
+import { VideoTemplateService } from '../template-service';
 import { VideoType } from '../../../types/video';
 import validVideos from './fixtures/videos.json';
 import voiceIdTemplate from '../../__tests__/templates/voiceId-template.json';
@@ -488,6 +489,8 @@ describe('VideoValidationService', () => {
       const audioElement = result.elements[0].elements[0];
       expect(audioElement.provider).toContain('voice_id=original-voice-id'); // unchanged
     });
+
+    // Watermark integration tests removed - watermarks are handled in VideoTemplateService, not ValidationService
   });
 
   describe('validateSceneDurations', () => {
@@ -770,4 +773,5 @@ describe('VideoValidationService', () => {
       expect(scenePlan.scenes[0].video_asset.trim_duration).toBeUndefined();
     });
   });
+
 });

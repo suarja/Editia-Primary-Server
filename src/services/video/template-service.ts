@@ -11,6 +11,7 @@ import { videoValidationService } from './validation-service';
 import winston from 'winston';
 import { PromptService } from '../promptService';
 import { MODELS } from '../../config/openai';
+import { WatermarkService } from './watermark-service';
 
 export type TemplateConfig = {
      scriptText: string;
@@ -21,6 +22,7 @@ export type TemplateConfig = {
       outputLanguage: string;
       systemPrompt?: string;
       captionStructure?: any;
+      userId?: string; // User ID for watermark detection
 }
 
 /**
@@ -166,6 +168,23 @@ export class VideoTemplateService {
       agentPrompt: promptTemplate.system,
     });
 
+    // Step 7.5: Add watermark for free users
+    if (config.userId) {
+      try {
+        const watermarkAdded = await WatermarkService.addWatermarkIfNeeded(config.userId, template);
+        if (watermarkAdded) {
+          processLogger.info('🏷️ Watermark added for free user');
+        } else {
+          processLogger.info('💎 No watermark needed for paid user');
+        }
+      } catch (error) {
+        processLogger.error('❌ Error adding watermark:', error);
+        // Continue without watermark rather than failing the entire generation
+        processLogger.warn('⚠️ Continuing video generation without watermark');
+      }
+    } else {
+      processLogger.warn('⚠️ No userId provided, skipping watermark check');
+    }
 
     processLogger.info('✅ Template fixes applied');
 
