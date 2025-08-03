@@ -49,7 +49,7 @@
     "prebuild": "npm run clean",
     "postbuild": "cp -r views public dist/ || true",
     "test": "vitest",
-    "test:run": "vitest run --reporter=basic",
+    "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:jest": "jest",

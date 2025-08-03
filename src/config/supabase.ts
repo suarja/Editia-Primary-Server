@@ -8,18 +8,21 @@ dotenv.config();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl) {
+// In test environment, use default values to prevent import errors
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+if (!supabaseUrl && !isTestEnv) {
   throw new Error("Missing SUPABASE_URL environment variable");
 }
 
-if (!supabaseServiceRoleKey) {
+if (!supabaseServiceRoleKey && !isTestEnv) {
   throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
 }
 
 // Create Supabase client with service role key for server-side operations
 export const supabase = createClient<Database>(
-  supabaseUrl,
-  supabaseServiceRoleKey,
+  supabaseUrl || 'https://test.supabase.co',
+  supabaseServiceRoleKey || 'test-service-role-key',
   {
     auth: {
       autoRefreshToken: false,

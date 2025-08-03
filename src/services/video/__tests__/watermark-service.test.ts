@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { WatermarkService, DatabaseClient, Logger } from '../watermark-service';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+// Set up environment variables before any imports
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://test.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-key';
+
+// Now import after env vars are set
+import { WatermarkService, Logger } from '../watermark-service';
 
 describe('WatermarkService', () => {
-  let mockDb: DatabaseClient;
+  let mockDb: any;
   let mockLogger: Logger;
   let watermarkService: WatermarkService;
 
@@ -13,7 +20,7 @@ describe('WatermarkService', () => {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       single: vi.fn(),
-    } as any;
+    };
 
     mockLogger = {
       info: vi.fn(),

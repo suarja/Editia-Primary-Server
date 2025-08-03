@@ -5,9 +5,11 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist'],
     silent: process.env.NODE_ENV === 'test',
+    reporters: [['default', { summary: false }]],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
