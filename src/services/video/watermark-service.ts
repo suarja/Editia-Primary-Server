@@ -1,16 +1,7 @@
 import { supabase } from "../../config/supabase";
 import { logger } from "../../config/logger";
+import { SupabaseClient } from "@supabase/supabase-js";
 
-// Define interfaces for dependencies (better testability)
-export interface DatabaseClient {
-  from(table: string): {
-    select(columns: string): {
-      eq(column: string, value: string): {
-        single(): Promise<{ data: any; error: any }>;
-      };
-    };
-  };
-}
 
 export interface Logger {
   info(message: string, ...args: any[]): void;
@@ -25,10 +16,10 @@ export interface Logger {
 export class WatermarkService {
   private static readonly WATERMARK_IMAGE_URL = 'https://ai-edit-v1.s3.us-east-1.amazonaws.com/cdn/images/editia-logo.png';
   
-  private db: DatabaseClient;
+  private db: SupabaseClient;
   private log: Logger;
 
-  constructor(db: DatabaseClient = supabase, log: Logger = logger) {
+  constructor(db: SupabaseClient = supabase, log: Logger = logger) {
     this.db = db;
     this.log = log;
   }
