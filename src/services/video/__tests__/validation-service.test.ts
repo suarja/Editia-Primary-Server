@@ -50,9 +50,15 @@ vi.mock('../../../utils/video/preset-converter', () => ({
 
 describe('VideoValidationService', () => {
   let service: VideoValidationService;
+  let mockLogger: any;
   
   beforeEach(() => {
     service = new VideoValidationService();
+    mockLogger = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
     vi.clearAllMocks();
   });
 
@@ -165,6 +171,7 @@ describe('VideoValidationService', () => {
                 type: 'video',
                 fit: 'contain', // should be changed to 'cover'
                 duration: 10, // should be changed to null
+                volume: 50, // should be changed to 0
               },
             ],
           },
@@ -173,8 +180,61 @@ describe('VideoValidationService', () => {
 
       const result = await service.validateTemplate(templateWithVideo, mockConfig);
       
-      expect(result.elements[0].elements[0].fit).toBe('cover');
-      expect(result.elements[0].elements[0].duration).toBeNull();
+      const videoElement = result.elements[0].elements[0];
+      expect(videoElement.fit).toBe('cover');
+      expect(videoElement.duration).toBeNull();
+      expect(videoElement.volume).toBe(0);
+      expect(videoElement.time).toBe(0); // First video should have time: 0
+    });
+
+    it('should apply time strategy: first video time=0, others time="auto"', async () => {
+      const templateWithMultipleVideos = {
+        output_format: 'mp4',
+        width: 1080,
+        height: 1920,
+        elements: [
+          {
+            type: 'composition',
+            elements: [
+              {
+                type: 'video',
+                id: 'video-1',
+                time: 5, // Should be fixed to 0
+              },
+              {
+                type: 'video', 
+                id: 'video-2',
+                time: 10, // Should be fixed to "auto"
+              },
+              {
+                type: 'video',
+                id: 'video-3', 
+                time: 15, // Should be fixed to "auto"
+              },
+              {
+                type: 'audio', // Should be ignored
+                id: 'audio-1',
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await service.validateTemplate(templateWithMultipleVideos, mockConfig);
+      
+      const elements = result.elements[0].elements;
+      const videoElements = elements.filter((el: any) => el.type === 'video');
+      
+      expect(videoElements[0].time).toBe(0);
+      expect(videoElements[1].time).toBe("auto");
+      expect(videoElements[2].time).toBe("auto");
+      
+      // All videos should have standardized properties
+      videoElements.forEach((video: any) => {
+        expect(video.duration).toBeNull();
+        expect(video.fit).toBe('cover');
+        expect(video.volume).toBe(0);
+      });
     });
 
     it('should handle caption configuration', async () => {
@@ -436,11 +496,11 @@ describe('VideoValidationService', () => {
         scenes: [
           {
             scene_number: 1,
-            script_text: 'This is a very long text that will take more than 10 seconds to read', // 15 words * 0.7 = 10.5s
+            script_text: 'This is a very long text that will take more than 10 seconds to read', // 15 words * 0.5 = 7.5s
             video_asset: {
               id: 'video-1',
               trim_start: null,
-              trim_duration: '8', // 8 seconds available
+              trim_duration: '6', // 6 seconds available
             },
           },
         ],
@@ -458,8 +518,8 @@ describe('VideoValidationService', () => {
       
       expect(violations).toHaveLength(1);
       expect(violations[0].sceneIndex).toBe(0);
-      expect(violations[0].textLength).toBeCloseTo(10.5, 1);
-      expect(violations[0].videoLength).toBe(8);
+      expect(violations[0].textLength).toBeCloseTo(7.5, 1);
+      expect(violations[0].videoLength).toBe(6);
     });
 
     it('should pass validation when text fits within video duration', () => {
@@ -467,7 +527,7 @@ describe('VideoValidationService', () => {
         scenes: [
           {
             scene_number: 1,
-            script_text: 'Short text', // 2 words * 0.7 = 1.4s
+            script_text: 'Short text', // 2 words * 0.5 = 1.0s
             video_asset: {
               id: 'video-1',
               trim_start: null,
@@ -494,7 +554,7 @@ describe('VideoValidationService', () => {
         scenes: [
           {
             scene_number: 1,
-            script_text: 'This is a medium length text for testing', // 8 words * 0.7 = 5.6s
+            script_text: 'This is a medium length text for testing', // 8 words * 0.5 = 4.0s
             video_asset: {
               id: 'video-2',
               trim_start: null,
@@ -507,14 +567,14 @@ describe('VideoValidationService', () => {
       const selectedVideos = [
         {
           id: 'video-2',
-          duration_seconds: 5, // Only 5 seconds available
+          duration_seconds: 3, // Only 3 seconds available
         },
       ];
 
       const violations = (service as any).validateSceneDurations(scenePlan, selectedVideos);
       
       expect(violations).toHaveLength(1);
-      expect(violations[0].videoLength).toBe(5);
+      expect(violations[0].videoLength).toBe(3);
     });
 
     it('should apply 95% safety margin to video duration', () => {
@@ -522,11 +582,11 @@ describe('VideoValidationService', () => {
         scenes: [
           {
             scene_number: 1,
-            script_text: 'Text that is exactly at the limit', // 7 words * 0.7 = 4.9s
+            script_text: 'Text that is exactly at the limit', // 7 words * 0.5 = 3.5s
             video_asset: {
               id: 'video-1',
               trim_start: null,
-              trim_duration: '5', // 5 * 0.95 = 4.75s max allowed
+              trim_duration: '3', // 3 * 0.95 = 2.85s max allowed
             },
           },
         ],
@@ -534,8 +594,8 @@ describe('VideoValidationService', () => {
 
       const violations = (service as any).validateSceneDurations(scenePlan, []);
       
-      expect(violations).toHaveLength(1); // 4.9s > 4.75s
-      expect(violations[0].overageSeconds).toBeCloseTo(0.15, 1);
+      expect(violations).toHaveLength(1); // 3.5s > 2.85s
+      expect(violations[0].overageSeconds).toBeCloseTo(0.65, 1);
     });
 
     it('should handle multiple scenes with mixed violations', () => {
@@ -543,7 +603,7 @@ describe('VideoValidationService', () => {
         scenes: [
           {
             scene_number: 1,
-            script_text: 'Short OK text', // 3 words * 0.7 = 2.1s
+            script_text: 'Short OK text', // 3 words * 0.5 = 1.5s
             video_asset: {
               id: 'video-1',
               trim_duration: '5', // OK
@@ -551,15 +611,15 @@ describe('VideoValidationService', () => {
           },
           {
             scene_number: 2,
-            script_text: 'This is a very long text that will definitely exceed the duration', // 12 words * 0.7 = 8.4s
+            script_text: 'This is a very long text that will definitely exceed the duration', // 12 words * 0.5 = 6.0s
             video_asset: {
               id: 'video-2',
-              trim_duration: '6', // Too short
+              trim_duration: '4', // Too short
             },
           },
           {
             scene_number: 3,
-            script_text: 'Another OK text', // 3 words * 0.7 = 2.1s
+            script_text: 'Another OK text', // 3 words * 0.5 = 1.5s
             video_asset: {
               id: 'video-3',
               trim_duration: '4', // OK
@@ -609,7 +669,7 @@ describe('VideoValidationService', () => {
             script_text: '  Word   count    test   ', // 3 words despite extra spaces
             video_asset: {
               id: 'video-1',
-              trim_duration: '2', // 3 * 0.7 = 2.1s > 2 * 0.95 = 1.9s
+              trim_duration: '1', // 3 * 0.5 = 1.5s > 1 * 0.95 = 0.95s
             },
           },
         ],
@@ -618,7 +678,96 @@ describe('VideoValidationService', () => {
       const violations = (service as any).validateSceneDurations(scenePlan, []);
       
       expect(violations).toHaveLength(1);
-      expect(violations[0].textLength).toBeCloseTo(2.1, 1);
+      expect(violations[0].textLength).toBeCloseTo(1.5, 1);
+    });
+  });
+
+  describe('applySimplifiedVideoStrategy', () => {
+    it('should remove trim_start and trim_duration from scene assets', () => {
+      const scenePlan = {
+        scenes: [
+          {
+            scene_number: 1,
+            script_text: 'Test scene',
+            video_asset: {
+              id: 'video-1',
+              trim_start: '5',
+              trim_duration: '10',
+              url: 'https://example.com/video1.mp4'
+            },
+          },
+          {
+            scene_number: 2,
+            script_text: 'Another test scene',
+            video_asset: {
+              id: 'video-2',
+              trim_start: '0',
+              trim_duration: '8',
+              url: 'https://example.com/video2.mp4'
+            },
+          },
+        ],
+      };
+
+      // Apply the simplified strategy
+      (service as any).applySimplifiedVideoStrategy(scenePlan, mockLogger);
+
+      // Check that trim properties were removed
+      expect(scenePlan.scenes[0].video_asset.trim_start).toBeUndefined();
+      expect(scenePlan.scenes[0].video_asset.trim_duration).toBeUndefined();
+      expect(scenePlan.scenes[1].video_asset.trim_start).toBeUndefined();
+      expect(scenePlan.scenes[1].video_asset.trim_duration).toBeUndefined();
+
+      // Check that other properties remain
+      expect(scenePlan.scenes[0].video_asset.id).toBe('video-1');
+      expect(scenePlan.scenes[0].video_asset.url).toBe('https://example.com/video1.mp4');
+    });
+
+    it('should handle scenes without video assets gracefully', () => {
+      const scenePlan = {
+        scenes: [
+          {
+            scene_number: 1,
+            script_text: 'Test scene',
+            video_asset: null,
+          },
+          {
+            scene_number: 2,
+            script_text: 'Another scene',
+            // Missing video_asset
+          },
+        ],
+      };
+
+      // Should not throw error
+      expect(() => {
+        (service as any).applySimplifiedVideoStrategy(scenePlan, mockLogger);
+      }).not.toThrow();
+    });
+
+    it('should handle scenes where trim properties are already undefined', () => {
+      const scenePlan = {
+        scenes: [
+          {
+            scene_number: 1,
+            script_text: 'Test scene',
+            video_asset: {
+              id: 'video-1',
+              url: 'https://example.com/video1.mp4'
+              // No trim properties
+            },
+          },
+        ],
+      };
+
+      // Should not throw error
+      expect(() => {
+        (service as any).applySimplifiedVideoStrategy(scenePlan, mockLogger);
+      }).not.toThrow();
+
+      // Properties should still be undefined
+      expect(scenePlan.scenes[0].video_asset.trim_start).toBeUndefined();
+      expect(scenePlan.scenes[0].video_asset.trim_duration).toBeUndefined();
     });
   });
 });
