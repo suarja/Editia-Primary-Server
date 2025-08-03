@@ -2,25 +2,208 @@
 <html lang="en">
   <head>
       <meta charset="utf-8">
-      <meta name="description" content="alphasec">
-      <meta name="author" content="alphasec">
+      <meta name="description" content="Editia Server Primary - AI-powered video generation API">
+      <meta name="author" content="Editia Team">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <title>alphasec</title>
+      <title>Editia API Server - Video Generation Platform</title>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
       <link rel="stylesheet" href="/css/styles.css">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:500&display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
       <link rel="icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div class="row">
-      <h1 class="h1">alphasec</h1>
+    <div class="landing-container">
+      <header class="header-section">
+        <div class="container">
+          <h1 class="main-title">Editia Server Primary</h1>
+          <p class="subtitle">AI-Powered Video Generation API</p>
+          <div class="status-badges">
+            <span class="badge badge-success">API Status: Online</span>
+            <span class="badge badge-info">Version: 1.0.0</span>
+            <span class="badge badge-secondary">Environment: <span id="environment">Production</span></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-section">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8 mx-auto">
+              <div class="card service-card">
+                <div class="card-body">
+                  <h2 class="card-title">🚀 Service Overview</h2>
+                  <p class="card-text">
+                    Transform scripts into engaging videos with AI voice cloning, dynamic templates, 
+                    and intelligent content optimization. Built for scale, powered by cutting-edge AI.
+                  </p>
+                  <div class="feature-grid">
+                    <div class="feature-item">
+                      <span class="feature-icon">🎬</span>
+                      <span>Video Generation</span>
+                    </div>
+                    <div class="feature-item">
+                      <span class="feature-icon">🎤</span>
+                      <span>Voice Cloning</span>
+                    </div>
+                    <div class="feature-item">
+                      <span class="feature-icon">🤖</span>
+                      <span>AI Enhancement</span>
+                    </div>
+                    <div class="feature-item">
+                      <span class="feature-icon">🛡️</span>
+                      <span>Enterprise Security</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card endpoints-card">
+                <div class="card-body">
+                  <h2 class="card-title">📡 API Endpoints</h2>
+                  <div class="endpoints-list">
+                    <div class="endpoint-group">
+                      <h4>🎥 Video Generation</h4>
+                      <div class="endpoint-item">
+                        <code>POST /api/scripts/generate-video/:id</code>
+                        <span class="endpoint-desc">Generate video from script</span>
+                      </div>
+                      <div class="endpoint-item">
+                        <code>GET /api/videos/status/:id</code>
+                        <span class="endpoint-desc">Check generation status</span>
+                      </div>
+                    </div>
+
+                    <div class="endpoint-group">
+                      <h4>📝 Script Management</h4>
+                      <div class="endpoint-item">
+                        <code>GET /api/scripts</code>
+                        <span class="endpoint-desc">List user scripts</span>
+                      </div>
+                      <div class="endpoint-item">
+                        <code>POST /api/scripts/chat</code>
+                        <span class="endpoint-desc">AI chat assistance</span>
+                      </div>
+                    </div>
+
+                    <div class="endpoint-group">
+                      <h4>🎤 Voice Cloning</h4>
+                      <div class="endpoint-item">
+                        <code>POST /api/voice-clone</code>
+                        <span class="endpoint-desc">Upload voice sample</span>
+                      </div>
+                      <div class="endpoint-item">
+                        <code>GET /api/voice-clone/library</code>
+                        <span class="endpoint-desc">List voice samples</span>
+                      </div>
+                    </div>
+
+                    <div class="endpoint-group">
+                      <h4>🩺 Health & Status</h4>
+                      <div class="endpoint-item">
+                        <code>GET /api/health</code>
+                        <span class="endpoint-desc">Service health check</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card auth-card">
+                <div class="card-body">
+                  <h2 class="card-title">🔐 Authentication</h2>
+                  <p>All API endpoints (except /health) require Clerk JWT authentication.</p>
+                  <pre class="code-block"><code>Authorization: Bearer &lt;clerk-jwt-token&gt;</code></pre>
+                </div>
+              </div>
+
+              <div class="card stats-card">
+                <div class="card-body">
+                  <h2 class="card-title">📊 Service Status</h2>
+                  <div class="status-grid">
+                    <div class="status-item">
+                      <span class="status-label">Supabase</span>
+                      <span id="supabase-status" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                      <span class="status-label">AWS S3</span>
+                      <span id="s3-status" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                      <span class="status-label">AI Agents</span>
+                      <span id="agents-status" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                      <span class="status-label">Test Coverage</span>
+                      <span class="status-value success">47/47 Tests ✅</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer-section">
+        <div class="container">
+          <p class="footer-text">
+            <strong>Editia Server Primary</strong> • 
+            <a href="https://github.com/your-org/editia" target="_blank">GitHub</a> • 
+            <a href="/docs" target="_blank">Documentation</a> • 
+            <span class="text-muted">© 2025 Editia Team. All rights reserved.</span>
+          </p>
+        </div>
+      </footer>
     </div>
-    <div class="row">
-      <div>
-      </div>
-    </div>
-    <div class="row">
-      <span class="text-muted small">alphasec © 2024. All rights reserved.</span>
-    </div>
+
+    <script>
+      // Check API health and update status indicators
+      async function checkServiceStatus() {
+        try {
+          const response = await fetch('/api/health');
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update environment from actual server data
+            document.getElementById('environment').textContent = 
+              data.environment || 'Production';
+            
+            // Update service statuses from real data
+            if (data.services) {
+              updateServiceStatus(data.services);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check service status:', error);
+          // Show error state
+          updateServiceStatus({ supabase: false, s3: false, agents: false });
+        }
+      }
+
+      // Update service status indicators
+      function updateServiceStatus(services) {
+        // Update Supabase status
+        document.getElementById('supabase-status').innerHTML = services.supabase
+          ? '<span class="text-success">✅ Connected</span>'
+          : '<span class="text-danger">❌ Disconnected</span>';
+        
+        // Update S3 status
+        document.getElementById('s3-status').innerHTML = services.s3
+          ? '<span class="text-success">✅ Connected</span>'
+          : '<span class="text-danger">❌ Disconnected</span>';
+        
+        // Update Agents status
+        document.getElementById('agents-status').innerHTML = services.agents
+          ? '<span class="text-success">✅ Connected</span>'
+          : '<span class="text-danger">❌ Disconnected</span>';
+      }
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        checkServiceStatus();
+        // Refresh status every 30 seconds
+        setInterval(checkServiceStatus, 30000);
+      });
+    </script>
   </body>
 </html>

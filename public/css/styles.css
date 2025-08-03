@@ -1,28 +1,328 @@
-html {
-    height: 100%;
-    width: 100%;
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #0a0a0a;
+  color: #e0e0e0;
+}
+
+/* Landing Container */
+.landing-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.header-section {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  padding: 4rem 0;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #a0a0a0;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+.status-badges {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 2rem;
+}
+
+.badge-success {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-info {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Content Section */
+.content-section {
+  flex: 1;
+  padding: 3rem 0;
+}
+
+/* Cards */
+.card {
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.7);
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.card-text {
+  color: #a0a0a0;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Feature Grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.feature-item:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.feature-icon {
+  font-size: 1.25rem;
+}
+
+/* Endpoints */
+.endpoints-list {
+  margin-top: 1.5rem;
+}
+
+.endpoint-group {
+  margin-bottom: 2rem;
+}
+
+.endpoint-group h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #e0e0e0;
+}
+
+.endpoint-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.endpoint-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.endpoint-item code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  color: #6366f1;
+  background-color: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.endpoint-desc {
+  font-size: 0.875rem;
+  color: #808080;
+}
+
+/* Code Block */
+.code-block {
+  background-color: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.code-block code {
+  color: #6366f1;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+}
+
+/* Status Grid */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-label {
+  font-weight: 500;
+  color: #a0a0a0;
+}
+
+.status-value {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.status-value.success {
+  color: #22c55e;
+}
+
+/* Footer */
+.footer-section {
+  background-color: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.footer-text {
+  margin: 0;
+  color: #808080;
+  font-size: 0.875rem;
+}
+
+.footer-text a {
+  color: #6366f1;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.footer-text a:hover {
+  color: #8b5cf6;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2.5rem;
   }
-  
-  body {
-    display: table;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    width: 100%;
+
+  .subtitle {
+    font-size: 1rem;
   }
-  
-  .row {
-    display: table-row;
-    height: 75%;
-    background-color: #282828;
-    text-align: center;
+
+  .card-body {
+    padding: 1.5rem;
   }
-  
-  .h1 {
-    font-size: 54px;
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to right, #FFFFFF 0%, #FF6600 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    padding-top: 100px;
+
+  .endpoint-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
+
+  .status-badges {
+    justify-content: center;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.status-value:contains("Checking") {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Success/Error Text Colors */
+.text-success {
+  color: #22c55e;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+.text-warning {
+  color: #f59e0b;
+}
+
+.text-muted {
+  color: #6b7280;
+}
