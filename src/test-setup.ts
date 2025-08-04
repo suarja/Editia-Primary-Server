@@ -3,10 +3,16 @@ import { beforeAll, vi } from 'vitest';
 // Set up test environment variables before any imports
 beforeAll(() => {
   // Set minimal environment variables needed for tests
+  process.env.NODE_ENV = 'test';
   process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://test.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key';
   process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'test-anon-key';
-  process.env.NODE_ENV = 'test';
+  
+  // Set other commonly needed env vars
+  process.env.CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'test-clerk-secret';
+  process.env.AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'test-aws-key';
+  process.env.AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'test-aws-secret';
+  process.env.AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 });
 
 // Mock the entire supabase module to prevent actual connections

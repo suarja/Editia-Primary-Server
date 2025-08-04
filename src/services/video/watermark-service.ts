@@ -162,15 +162,23 @@ export class WatermarkService {
    * Convenience method that checks if user needs watermark and adds it if needed
    */
   async addWatermarkIfNeeded(userId: string, template: any): Promise<boolean> {
-    const needsWatermark = await this.shouldAddWatermark(userId);
-    
-    if (needsWatermark) {
+    try {
+      const needsWatermark = await this.shouldAddWatermark(userId);
+      
+      if (needsWatermark) {
+        this.addWatermarkToTemplate(template);
+        this.log.info(`🏷️ Watermark added for free user ${userId}`);
+        return true;
+      } else {
+        this.log.info(`💎 No watermark needed for paid user ${userId}`);
+        return false;
+      }
+    } catch (error) {
+      this.log.error(`❌ Error in addWatermarkIfNeeded for user ${userId}:`, error);
+      // Fail-safe: add watermark if we can't determine the plan
       this.addWatermarkToTemplate(template);
-      this.log.info(`🏷️ Watermark added for free user ${userId}`);
+      this.log.warn(`⚠️ Added watermark as fail-safe for user ${userId}`);
       return true;
-    } else {
-      this.log.info(`💎 No watermark needed for paid user ${userId}`);
-      return false;
     }
   }
 

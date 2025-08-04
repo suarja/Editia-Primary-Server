@@ -29,6 +29,11 @@ jobs:
 
     - name: Run TypeScript compilation
       run: npm run build
+      env:
+        NODE_ENV: test
+        SUPABASE_URL: https://test.supabase.co
+        SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+        SUPABASE_ANON_KEY: test-anon-key
 
     - name: Run tests
       run: npm run test:run
@@ -37,6 +42,10 @@ jobs:
         SUPABASE_URL: https://test.supabase.co
         SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
         SUPABASE_ANON_KEY: test-anon-key
+        CLERK_SECRET_KEY: test-clerk-secret
+        AWS_ACCESS_KEY_ID: test-aws-key
+        AWS_SECRET_ACCESS_KEY: test-aws-secret
+        AWS_REGION: us-east-1
 
     - name: Run test coverage
       run: npm run test:coverage
@@ -46,6 +55,10 @@ jobs:
         SUPABASE_URL: https://test.supabase.co
         SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
         SUPABASE_ANON_KEY: test-anon-key
+        CLERK_SECRET_KEY: test-clerk-secret
+        AWS_ACCESS_KEY_ID: test-aws-key
+        AWS_SECRET_ACCESS_KEY: test-aws-secret
+        AWS_REGION: us-east-1
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
