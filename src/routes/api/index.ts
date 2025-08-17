@@ -189,7 +189,7 @@ const authRoutes = express.Router();
 authRoutes.use(authenticateUser);
 
 // S3 upload endpoint
-authRoutes.post("/s3-upload",sourceVideoUploadMiddleware, createUsageIncrementMiddleware(),  uploadS3Handler);
+authRoutes.post("/s3-upload",  uploadS3Handler);
 
 // Video analysis endpoints
 authRoutes.post("/video-analysis", videoAnalysisHandler);
