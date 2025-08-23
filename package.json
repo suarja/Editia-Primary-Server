@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Node.js web application with TypeScript for video generation API.",
   "main": "dist/app.js",
-  "author": "alphasec",
+  "author": "Jason Suárez",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.825.0",

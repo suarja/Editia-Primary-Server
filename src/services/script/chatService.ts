@@ -21,6 +21,7 @@ import { MonetizationService, MonetizationErrorCode, MONETIZATION_ERROR_CODES, M
 import { z } from "zod";
 import { logger } from "../../config/logger";
 import { VIDEO_DURATION_FACTOR } from "../../config/video-constants";
+import { importOpenAIAgentsPackage } from "../../utils/dynamicImports";
 
 const OutputSchema = z.object({
         script: z.string().describe("The script to be generated").nullable().optional(),
@@ -93,30 +94,7 @@ export class ScriptChatService {
       ]);
 
       // Check results and log appropriately
-      if (scriptDraftResult.status === "fulfilled") {
-        var scriptDraft = scriptDraftResult.value;
-      } else {
-        this.logger.error("❌ Failed to get or create script draft:", scriptDraftResult.reason);
-        throw new Error("Failed to get or create script draft");
-      }
-
-      if (editorialProfileResult.status === "fulfilled") {
-        var editorialProfile = editorialProfileResult.value;
-      } else {
-        this.logger.error("❌ Failed to get editorial profile:", editorialProfileResult.reason);
-        throw new Error("Failed to get editorial profile");
-      }
-
-      let tiktokContext: string | null = null;
-      if (request.scriptId) {
-        if (tiktokContextResult.status === "fulfilled") {
-          tiktokContext = tiktokContextResult.value;
-        } else {
-          this.logger.warn("⚠️ Failed to fetch TikTok context:", tiktokContextResult.reason);
-        }
-      } else {
-        this.logger.info("ℹ️ No scriptId provided, skipping TikTok context fetch");
-      }
+      var { scriptDraft, editorialProfile, tiktokContext }: { scriptDraft: ScriptDraft; editorialProfile: any; tiktokContext: string | null; } = this.handlePromisesResults(scriptDraftResult, editorialProfileResult, request, tiktokContextResult);
 
       // Create conversation history
       const prompts = this.buildConversationHistoryForAgent(
@@ -126,8 +104,8 @@ export class ScriptChatService {
         tiktokContext
       );
 
-      // Dynamic import for @openai/agents
-      const { Agent, run } = await import('@openai/agents');
+      // Dynamic import for @openai/agents using utility
+      const { Agent, run } = await importOpenAIAgentsPackage();
 
       const agent = new Agent({
         model: this.model,
@@ -215,6 +193,34 @@ export class ScriptChatService {
       this.logger.error("❌ Script chat error:", error);
       throw error;
     }
+  }
+
+  private handlePromisesResults(scriptDraftResult: PromiseSettledResult<ScriptDraft>, editorialProfileResult: PromiseSettledResult<any>, request: ScriptChatRequest, tiktokContextResult: PromiseSettledResult<string | null>) {
+    if (scriptDraftResult.status === "fulfilled") {
+      var scriptDraft = scriptDraftResult.value;
+    } else {
+      this.logger.error("❌ Failed to get or create script draft:", scriptDraftResult.reason);
+      throw new Error("Failed to get or create script draft");
+    }
+
+    if (editorialProfileResult.status === "fulfilled") {
+      var editorialProfile = editorialProfileResult.value;
+    } else {
+      this.logger.error("❌ Failed to get editorial profile:", editorialProfileResult.reason);
+      throw new Error("Failed to get editorial profile");
+    }
+
+    let tiktokContext: string | null = null;
+    if (request.scriptId) {
+      if (tiktokContextResult.status === "fulfilled") {
+        tiktokContext = tiktokContextResult.value;
+      } else {
+        this.logger.warn("⚠️ Failed to fetch TikTok context:", tiktokContextResult.reason);
+      }
+    } else {
+      this.logger.info("ℹ️ No scriptId provided, skipping TikTok context fetch");
+    }
+    return { scriptDraft, editorialProfile, tiktokContext };
   }
 
   async updateTokenUsage(tokensUsed: number) {
