@@ -2,6 +2,8 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 import indexRouter from "./routes/index";
 import apiRouter from "./routes/api";
 import { supabase, testSupabaseConnection } from "./config/supabase";
@@ -38,6 +40,9 @@ try {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Load OpenAPI spec
+const swaggerDocument = YAML.load(path.join(__dirname, "../docs/openapi.yaml"));
+
 // CORS configuration
 app.use(
   cors({
@@ -59,6 +64,10 @@ app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
 });
+
+// API Documentation
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // API routes
 app.use("/api", apiRouter);
 
@@ -162,6 +171,7 @@ async function startServer() {
         "🔐 Authentication: All endpoints (except /health) require Clerk JWT token"
       );
       logger.info("📝 Header format: Authorization: Bearer <clerk-jwt-token>");
+      logger.info("📘 API Documentation: http://localhost:" + PORT + "/api/docs");
       logtail.flush();
     });
   } catch (error) {

@@ -1,0 +1,376 @@
+openapi: 3.0.0
+info:
+  title: EditIA Primary API
+  description: |
+    Backend principal pour EditIA.
+    Gère la génération de vidéos, les scripts, le clonage de voix et la gestion des utilisateurs.
+    
+    **Base URL**: `/api`
+  version: 1.0.0
+  contact:
+    name: EditIA Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development Server
+  - url: https://api.editia.app/api
+    description: Production Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # --- Shared Responses ---
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        details:
+          type: object
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    # --- Script Types ---
+    ScriptDraft:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        current_script:
+          type: string
+        status:
+          type: string
+          enum: [draft, validated, used]
+        output_language:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+
+    # --- Video Types ---
+    VideoRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        render_status:
+          type: string
+        render_url:
+          type: string
+          format: uri
+        snapshot_url:
+          type: string
+          format: uri
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ============================================================================
+  # SYSTEM
+  # ============================================================================
+  /health:
+    get:
+      summary: Health Check
+      security: []
+      tags: [System]
+      responses:
+        200:
+          description: Server status and service connections.
+
+  # ============================================================================
+  # SCRIPTS (New Core)
+  # ============================================================================
+  /scripts:
+    get:
+      summary: List script drafts
+      tags: [Scripts]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, validated, used]
+      responses:
+        200:
+          description: List of scripts.
+
+  /scripts/{id}:
+    get:
+      summary: Get script details
+      tags: [Scripts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Script details with messages.
+    delete:
+      summary: Delete script draft
+      tags: [Scripts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Script deleted.
+
+  /scripts/chat:
+    post:
+      summary: AI Script Chat
+      description: Send a message to the AI agent to generate or refine a script. Supports SSE.
+      tags: [Scripts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                scriptId:
+                  type: string
+                  format: uuid
+      responses:
+        200:
+          description: Chat response (or stream).
+
+  /scripts/{id}/validate:
+    post:
+      summary: Validate script
+      tags: [Scripts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Script validated.
+
+  /scripts/{id}/generate-video:
+    post:
+      summary: Generate video from script
+      description: Launches the video generation pipeline using the script content.
+      tags: [Scripts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                voiceId:
+                  type: string
+                outputLanguage:
+                  type: string
+                selectedVideos:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        201:
+          description: Video generation started.
+
+  # ============================================================================
+  # VIDEOS
+  # ============================================================================
+  /videos:
+    get:
+      summary: List video requests
+      tags: [Videos]
+      responses:
+        200:
+          description: History of video generations.
+
+  /videos/generate:
+    post:
+      summary: Direct Video Generation
+      tags: [Videos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                duration:
+                  type: integer
+      responses:
+        201:
+          description: Generation started.
+
+  /videos/status/{id}:
+    get:
+      summary: Check video status
+      tags: [Videos]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Video status (rendering, done, error).
+
+  # ============================================================================
+  # VOICE CLONE
+  # ============================================================================
+  /voice-clone:
+    post:
+      summary: Create Voice Clone
+      tags: [Voice]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Voice cloned successfully.
+
+  /voice-clone/user-voices:
+    get:
+      summary: List user voices
+      tags: [Voice]
+      responses:
+        200:
+          description: List of available voices.
+
+  # ============================================================================
+  # SOURCE VIDEOS (B-Roll)
+  # ============================================================================
+  /source-videos:
+    get:
+      summary: List source videos
+      tags: [Assets]
+      responses:
+        200:
+          description: User's uploaded videos.
+    post:
+      summary: Save source video metadata
+      tags: [Assets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - uploadUrl
+                - storagePath
+              properties:
+                title:
+                  type: string
+                uploadUrl:
+                  type: string
+                storagePath:
+                  type: string
+      responses:
+        201:
+          description: Saved.
+
+  /s3-upload:
+    post:
+      summary: Get S3 Signed URL
+      tags: [Assets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                contentType:
+                  type: string
+      responses:
+        200:
+          description: Presigned URL returned.
+
+  # ============================================================================
+  # ONBOARDING
+  # ============================================================================
+  /onboarding:
+    post:
+      summary: Submit Onboarding
+      tags: [Onboarding]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Optional voice recording
+                survey_data:
+                  type: string
+                  description: JSON string of survey answers
+      responses:
+        200:
+          description: Onboarding completed.
