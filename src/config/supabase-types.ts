@@ -7,35 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
   }
   public: {
     Tables: {
@@ -302,12 +277,60 @@ export type Database = {
           },
         ]
       }
+      content_plans: {
+        Row: {
+          created_at: string | null
+          funnel_stage: string | null
+          id: string
+          offer_context: Json | null
+          script_content: string | null
+          target_audience_psych: string | null
+          title: string | null
+          topic: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          funnel_stage?: string | null
+          id?: string
+          offer_context?: Json | null
+          script_content?: string | null
+          target_audience_psych?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          funnel_stage?: string | null
+          id?: string
+          offer_context?: Json | null
+          script_content?: string | null
+          target_audience_psych?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editorial_profiles: {
         Row: {
           audience: string | null
           content_examples: Json | null
           created_at: string | null
           id: string
+          marketing_context: Json | null
           persona_description: string | null
           style_notes: string | null
           tone_of_voice: string | null
@@ -318,6 +341,7 @@ export type Database = {
           content_examples?: Json | null
           created_at?: string | null
           id?: string
+          marketing_context?: Json | null
           persona_description?: string | null
           style_notes?: string | null
           tone_of_voice?: string | null
@@ -328,6 +352,7 @@ export type Database = {
           content_examples?: Json | null
           created_at?: string | null
           id?: string
+          marketing_context?: Json | null
           persona_description?: string | null
           style_notes?: string | null
           tone_of_voice?: string | null
@@ -442,6 +467,65 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      niche_analyses: {
+        Row: {
+          analysis_data: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          niche_id: string | null
+          top_videos: Json | null
+          version: string | null
+        }
+        Insert: {
+          analysis_data?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          niche_id?: string | null
+          top_videos?: Json | null
+          version?: string | null
+        }
+        Update: {
+          analysis_data?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          niche_id?: string | null
+          top_videos?: Json | null
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niche_analyses_niche_id_fkey"
+            columns: ["niche_id"]
+            isOneToOne: false
+            referencedRelation: "niches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niches: {
+        Row: {
+          created_at: string | null
+          id: string
+          normalized_name: string
+          search_queries: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          normalized_name: string
+          search_queries?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          normalized_name?: string
+          search_queries?: string[] | null
+        }
+        Relationships: []
       }
       onboarding_survey: {
         Row: {
@@ -728,7 +812,10 @@ export type Database = {
           id: string
           message_count: number
           messages: Json
+          niche_id: string | null
           output_language: string
+          source_data: Json | null
+          source_type: string | null
           status: string
           title: string
           updated_at: string
@@ -744,7 +831,10 @@ export type Database = {
           id?: string
           message_count?: number
           messages?: Json
+          niche_id?: string | null
           output_language?: string
+          source_data?: Json | null
+          source_type?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -760,7 +850,10 @@ export type Database = {
           id?: string
           message_count?: number
           messages?: Json
+          niche_id?: string | null
           output_language?: string
+          source_data?: Json | null
+          source_type?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -774,6 +867,13 @@ export type Database = {
             columns: ["editorial_profile_id"]
             isOneToOne: false
             referencedRelation: "editorial_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "script_drafts_niche_id_fkey"
+            columns: ["niche_id"]
+            isOneToOne: false
+            referencedRelation: "niches"
             referencedColumns: ["id"]
           },
           {
@@ -839,36 +939,45 @@ export type Database = {
       subscription_plans: {
         Row: {
           account_analysis_limit: number
+          campaigns_limit: number | null
           created_at: string | null
           description: string | null
           id: string
           is_active: boolean | null
           is_unlimited: boolean
           name: string
+          script_conversations_limit: number
+          script_conversations_used: number
           source_videos_limit: number
           videos_generated_limit: number
           voice_clones_limit: number
         }
         Insert: {
           account_analysis_limit: number
+          campaigns_limit?: number | null
           created_at?: string | null
           description?: string | null
           id: string
           is_active?: boolean | null
           is_unlimited?: boolean
           name: string
+          script_conversations_limit?: number
+          script_conversations_used?: number
           source_videos_limit: number
           videos_generated_limit: number
           voice_clones_limit: number
         }
         Update: {
           account_analysis_limit?: number
+          campaigns_limit?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
           is_active?: boolean | null
           is_unlimited?: boolean
           name?: string
+          script_conversations_limit?: number
+          script_conversations_used?: number
           source_videos_limit?: number
           videos_generated_limit?: number
           voice_clones_limit?: number
@@ -942,6 +1051,7 @@ export type Database = {
       }
       tiktok_video_details: {
         Row: {
+          ai_analysis: Json | null
           id: string
           last_scraped_at: string
           raw_transcription: string | null
@@ -949,6 +1059,7 @@ export type Database = {
           video_id: string
         }
         Insert: {
+          ai_analysis?: Json | null
           id?: string
           last_scraped_at: string
           raw_transcription?: string | null
@@ -956,6 +1067,7 @@ export type Database = {
           video_id: string
         }
         Update: {
+          ai_analysis?: Json | null
           id?: string
           last_scraped_at?: string
           raw_transcription?: string | null
@@ -1122,11 +1234,15 @@ export type Database = {
         Row: {
           account_analysis_limit: number
           account_analysis_used: number
+          campaigns_generated: number | null
+          campaigns_limit: number | null
           created_at: string
           current_plan_id: string
           id: string
           last_reset_date: string
           next_reset_date: string
+          script_conversations_limit: number
+          script_conversations_used: number
           source_videos_limit: number
           source_videos_used: number
           subscription_status: string | null
@@ -1142,11 +1258,15 @@ export type Database = {
         Insert: {
           account_analysis_limit?: number
           account_analysis_used?: number
+          campaigns_generated?: number | null
+          campaigns_limit?: number | null
           created_at?: string
           current_plan_id?: string
           id?: string
           last_reset_date?: string
           next_reset_date?: string
+          script_conversations_limit?: number
+          script_conversations_used?: number
           source_videos_limit?: number
           source_videos_used?: number
           subscription_status?: string | null
@@ -1162,11 +1282,15 @@ export type Database = {
         Update: {
           account_analysis_limit?: number
           account_analysis_used?: number
+          campaigns_generated?: number | null
+          campaigns_limit?: number | null
           created_at?: string
           current_plan_id?: string
           id?: string
           last_reset_date?: string
           next_reset_date?: string
+          script_conversations_limit?: number
+          script_conversations_used?: number
           source_videos_limit?: number
           source_videos_used?: number
           subscription_status?: string | null
@@ -1548,44 +1672,61 @@ export type Database = {
     Functions: {
       create_storage_bucket: {
         Args: {
-          bucket_name: string
-          public_access?: boolean
-          file_size_limit?: number
           allowed_mime_types?: string[]
+          bucket_name: string
+          file_size_limit?: number
+          public_access?: boolean
         }
         Returns: undefined
       }
       create_storage_policy: {
         Args: {
           bucket_name: string
-          policy_name: string
           operation: string
-          policy_using?: string
           policy_check?: string
+          policy_name: string
           policy_role?: unknown
+          policy_using?: string
         }
         Returns: undefined
       }
+      create_user_if_not_exists: {
+        Args: {
+          p_avatar_url?: string
+          p_clerk_user_id: string
+          p_email: string
+          p_full_name: string
+        }
+        Returns: {
+          avatar_url: string
+          clerk_user_id: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string
+        }[]
+      }
+      decrement_user_usage: {
+        Args: {
+          p_decrement_amount?: number
+          p_field_to_decrement: string
+          p_user_id: string
+        }
+        Returns: number
+      }
       increment_user_usage: {
-        Args: { p_user_id: string; p_field_to_increment: string }
+        Args: { p_field_to_increment: string; p_user_id: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      make_admin_by_email: {
-        Args: { admin_email: string }
-        Returns: string
-      }
+      is_admin: { Args: never; Returns: boolean }
+      make_admin_by_email: { Args: { admin_email: string }; Returns: string }
       sync_clerk_user: {
         Args: { clerk_user_id: string; email: string }
         Returns: undefined
       }
-      validate_tiktok_url: {
-        Args: { url: string }
-        Returns: boolean
-      }
+      validate_tiktok_url: { Args: { url: string }; Returns: boolean }
     }
     Enums: {
       platform_preference: "ios" | "android"
@@ -1714,9 +1855,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       platform_preference: ["ios", "android"],
