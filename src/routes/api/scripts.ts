@@ -699,7 +699,7 @@ export async function generateVideoFromScriptHandler(
 
     const videoGenerator = new VideoGeneratorService(user!, generateVideoFromScriptHandlerLogger);
     const result = await videoGenerator.generateVideoFromScript(
-      scriptDraft,
+      scriptDraft as any,
       validationResult.payload,
       generateVideoFromScriptHandlerLogger
     );

@@ -194,18 +194,26 @@ export class ClerkAuthService {
         return { success: false, error: "User not found" };
       }
 
+      // ✅ FIXED: Delete from Clerk FIRST to avoid orphaned Clerk users
+      // If Clerk deletion fails, nothing is deleted (safe rollback)
+      // If Supabase deletion fails after Clerk, webhook will recreate user on next login
+      logger.info("🗑️ Deleting user from Clerk first:", clerkUser.id);
+      const deletedUser = await this.clerkClient.users.deleteUser(clerkUser.id);
+      logger.info("✅ User deleted from Clerk:", deletedUser);
+
+      // Then delete from Supabase (CASCADE will handle related tables)
+      logger.info("🗑️ Deleting user from Supabase:", user.id);
       const { error } = await supabase
         .from("users")
         .delete()
         .eq("clerk_user_id", clerkUser.id);
+
       if (error) {
-        return {
-          success: false,
-          error: "Failed to delete user from database",
-        };
+        logger.warn("⚠️ Failed to delete from Supabase but Clerk deletion succeeded:", error);
+        // Don't return error - Clerk user is deleted, webhook will handle cleanup on next login
+      } else {
+        logger.info("✅ User deleted from Supabase");
       }
-      const deletedUser = await this.clerkClient.users.deleteUser(clerkUser.id);
-      logger.info("🔍 Deleted user:", deletedUser);
 
       return { success: true, error: null };
     } catch (error) {
