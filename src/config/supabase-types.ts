@@ -283,7 +283,8 @@ export type Database = {
           funnel_stage: string | null
           id: string
           offer_context: Json | null
-          script_content: string | null
+          prompt_metadata: Json | null
+          script_content: Json | null
           target_audience_psych: string | null
           title: string | null
           topic: string | null
@@ -295,7 +296,8 @@ export type Database = {
           funnel_stage?: string | null
           id?: string
           offer_context?: Json | null
-          script_content?: string | null
+          prompt_metadata?: Json | null
+          script_content?: Json | null
           target_audience_psych?: string | null
           title?: string | null
           topic?: string | null
@@ -307,7 +309,8 @@ export type Database = {
           funnel_stage?: string | null
           id?: string
           offer_context?: Json | null
-          script_content?: string | null
+          prompt_metadata?: Json | null
+          script_content?: Json | null
           target_audience_psych?: string | null
           title?: string | null
           topic?: string | null
@@ -435,6 +438,83 @@ export type Database = {
           video_id?: string
         }
         Relationships: []
+      }
+      invitation_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          expires_at: string | null
+          max_uses: number | null
+          role_to_assign: string | null
+          uses_count: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          max_uses?: number | null
+          role_to_assign?: string | null
+          uses_count?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          max_uses?: number | null
+          role_to_assign?: string | null
+          uses_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitation_redemptions: {
+        Row: {
+          code: string | null
+          id: string
+          redeemed_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          code?: string | null
+          id?: string
+          redeemed_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          code?: string | null
+          id?: string
+          redeemed_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_redemptions_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "invitation_codes"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "invitation_redemptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       logs: {
         Row: {
@@ -622,15 +702,18 @@ export type Database = {
       prompt_metrics: {
         Row: {
           account_id: string | null
+          completion_tokens: number | null
           created_at: string | null
           error_message: string | null
           error_type: string | null
+          estimated_cost_usd: number | null
           id: string
           input_size_chars: number | null
           model_used: string
           output_size_chars: number | null
           parsing_success: boolean
           prompt_id: string
+          prompt_tokens: number | null
           prompt_version: string
           quality_score: number | null
           response_time_ms: number
@@ -640,19 +723,23 @@ export type Database = {
           subscription_tier: string | null
           success: boolean
           token_usage: Json | null
+          total_tokens: number | null
           user_id: string | null
         }
         Insert: {
           account_id?: string | null
+          completion_tokens?: number | null
           created_at?: string | null
           error_message?: string | null
           error_type?: string | null
+          estimated_cost_usd?: number | null
           id?: string
           input_size_chars?: number | null
           model_used: string
           output_size_chars?: number | null
           parsing_success?: boolean
           prompt_id: string
+          prompt_tokens?: number | null
           prompt_version: string
           quality_score?: number | null
           response_time_ms: number
@@ -662,19 +749,23 @@ export type Database = {
           subscription_tier?: string | null
           success?: boolean
           token_usage?: Json | null
+          total_tokens?: number | null
           user_id?: string | null
         }
         Update: {
           account_id?: string | null
+          completion_tokens?: number | null
           created_at?: string | null
           error_message?: string | null
           error_type?: string | null
+          estimated_cost_usd?: number | null
           id?: string
           input_size_chars?: number | null
           model_used?: string
           output_size_chars?: number | null
           parsing_success?: boolean
           prompt_id?: string
+          prompt_tokens?: number | null
           prompt_version?: string
           quality_score?: number | null
           response_time_ms?: number
@@ -684,6 +775,7 @@ export type Database = {
           subscription_tier?: string | null
           success?: boolean
           token_usage?: Json | null
+          total_tokens?: number | null
           user_id?: string | null
         }
         Relationships: [
@@ -1228,7 +1320,15 @@ export type Database = {
           role?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_usage: {
         Row: {
@@ -1722,6 +1822,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       make_admin_by_email: { Args: { admin_email: string }; Returns: string }
+      redeem_invitation_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: Json
+      }
       sync_clerk_user: {
         Args: { clerk_user_id: string; email: string }
         Returns: undefined
