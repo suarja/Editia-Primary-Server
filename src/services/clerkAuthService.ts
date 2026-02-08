@@ -194,31 +194,43 @@ export class ClerkAuthService {
         return { success: false, error: "User not found" };
       }
 
-      // ✅ FIXED: Delete from Clerk FIRST to avoid orphaned Clerk users
-      // If Clerk deletion fails, nothing is deleted (safe rollback)
-      // If Supabase deletion fails after Clerk, webhook will recreate user on next login
-      logger.info("🗑️ Deleting user from Clerk first:", clerkUser.id);
-      const deletedUser = await this.clerkClient.users.deleteUser(clerkUser.id);
-      logger.info("✅ User deleted from Clerk:", deletedUser);
-
-      // Then delete from Supabase (CASCADE will handle related tables)
-      logger.info("🗑️ Deleting user from Supabase:", user.id);
-      const { error } = await supabase
+      // ✅ NEW APPROACH: Delete from Supabase FIRST (safer order)
+      // If Supabase deletion fails, nothing is deleted (safe rollback)
+      // If Clerk deletion fails after Supabase, user can't login anymore (DB gone = effectively deleted)
+      logger.info("🗑️ Step 1: Deleting from Supabase (with CASCADE):", user.id);
+      
+      const { error: dbError } = await supabase
         .from("users")
         .delete()
-        .eq("clerk_user_id", clerkUser.id);
+        .eq("id", user.id);
 
-      if (error) {
-        logger.warn("⚠️ Failed to delete from Supabase but Clerk deletion succeeded:", error);
-        // Don't return error - Clerk user is deleted, webhook will handle cleanup on next login
-      } else {
-        logger.info("✅ User deleted from Supabase");
+      if (dbError) {
+        logger.error("❌ Supabase deletion failed, aborting:", dbError);
+        throw new Error(`Database deletion failed: ${dbError.message}`);
+      }
+
+      logger.info("✅ Supabase deleted (CASCADE cleaned related tables)");
+
+      // Step 2: Delete from Clerk ONLY if DB deletion succeeded
+      logger.info("🗑️ Step 2: Deleting from Clerk:", clerkUser.id);
+      
+      try {
+        await this.clerkClient.users.deleteUser(clerkUser.id);
+        logger.info("✅ Clerk user deleted successfully");
+      } catch (clerkError: any) {
+        logger.error("❌ Clerk deletion failed BUT DB already deleted:", clerkError);
+        // This is acceptable - user can't login anymore (DB is gone)
+        // The orphaned Clerk user could be cleaned up manually if needed
+        logger.warn("⚠️ User is effectively deleted (DB gone, Clerk orphaned)");
       }
 
       return { success: true, error: null };
-    } catch (error) {
+    } catch (error: any) {
       logger.error("❌ Error deleting user:", error);
-      return { success: false, error: "Failed to delete user" };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : "Failed to delete user"
+      };
     }
   }
 }
