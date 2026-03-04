@@ -1483,6 +1483,8 @@ export type Database = {
           tokens_used: number | null
           updated_at: string
           user_id: string
+          video_analysis_limit: number
+          video_analysis_used: number
           videos_generated: number
           videos_generated_limit: number
           voice_clones_limit: number
@@ -1509,6 +1511,8 @@ export type Database = {
           tokens_used?: number | null
           updated_at?: string
           user_id: string
+          video_analysis_limit?: number
+          video_analysis_used?: number
           videos_generated?: number
           videos_generated_limit?: number
           voice_clones_limit?: number
@@ -1535,6 +1539,8 @@ export type Database = {
           tokens_used?: number | null
           updated_at?: string
           user_id?: string
+          video_analysis_limit?: number
+          video_analysis_used?: number
           videos_generated?: number
           videos_generated_limit?: number
           voice_clones_limit?: number
