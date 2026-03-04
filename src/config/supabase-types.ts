@@ -1118,6 +1118,47 @@ export type Database = {
           },
         ]
       }
+      share_events: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          id: string
+          platform: string
+          share_type: string
+          source: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          platform?: string
+          share_type?: string
+          source?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          platform?: string
+          share_type?: string
+          source?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           account_analysis_limit: number
@@ -1431,6 +1472,8 @@ export type Database = {
           id: string
           last_reset_date: string
           next_reset_date: string
+          no_analysis_email_sent: boolean | null
+          paywall_email_sent: boolean | null
           script_conversations_limit: number
           script_conversations_used: number
           source_videos_limit: number
@@ -1455,6 +1498,8 @@ export type Database = {
           id?: string
           last_reset_date?: string
           next_reset_date?: string
+          no_analysis_email_sent?: boolean | null
+          paywall_email_sent?: boolean | null
           script_conversations_limit?: number
           script_conversations_used?: number
           source_videos_limit?: number
@@ -1479,6 +1524,8 @@ export type Database = {
           id?: string
           last_reset_date?: string
           next_reset_date?: string
+          no_analysis_email_sent?: boolean | null
+          paywall_email_sent?: boolean | null
           script_conversations_limit?: number
           script_conversations_used?: number
           source_videos_limit?: number
@@ -1860,6 +1907,18 @@ export type Database = {
       }
     }
     Functions: {
+      admin_reset_user_usage: {
+        Args: { p_target_user_id: string }
+        Returns: undefined
+      }
+      admin_update_user_limit: {
+        Args: {
+          p_field?: string
+          p_limit_value: number
+          p_target_user_id: string
+        }
+        Returns: undefined
+      }
       create_storage_bucket: {
         Args: {
           allowed_mime_types?: string[]
@@ -1898,6 +1957,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      create_user_usage_record: {
+        Args: { p_plan_id?: string }
+        Returns: undefined
+      }
       decrement_user_usage: {
         Args: {
           p_decrement_amount?: number
@@ -1905,6 +1968,29 @@ export type Database = {
           p_user_id: string
         }
         Returns: number
+      }
+      get_user_monthly_token_stats: {
+        Args: { p_user_id?: string }
+        Returns: {
+          completion_tokens: number
+          estimated_cost_usd: number
+          generation_count: number
+          period_end: string
+          period_start: string
+          prompt_tokens: number
+          total_tokens: number
+        }[]
+      }
+      get_wall_of_fame: {
+        Args: { p_limit?: number }
+        Returns: {
+          all_validated: boolean
+          avatar_url: string
+          display_name: string
+          last_shared_at: string
+          share_count: number
+          user_id: string
+        }[]
       }
       increment_user_usage: {
         Args: { p_field_to_increment: string; p_user_id: string }
@@ -1920,6 +2006,7 @@ export type Database = {
         Args: { clerk_user_id: string; email: string }
         Returns: undefined
       }
+      sync_user_plan: { Args: { p_plan_id: string }; Returns: Json }
       validate_tiktok_url: { Args: { url: string }; Returns: boolean }
     }
     Enums: {
