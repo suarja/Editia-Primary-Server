@@ -833,6 +833,88 @@ export type Database = {
           },
         ]
       }
+      public_analyses: {
+        Row: {
+          analysis_data: Json
+          analysis_type: string
+          cover_image_url: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_public: boolean | null
+          slug: string
+          source_account_id: string | null
+          source_run_id: string | null
+          stats_data: Json | null
+          tiktok_handle: string | null
+          tiktok_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          view_count: number | null
+        }
+        Insert: {
+          analysis_data: Json
+          analysis_type: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          slug: string
+          source_account_id?: string | null
+          source_run_id?: string | null
+          stats_data?: Json | null
+          tiktok_handle?: string | null
+          tiktok_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          analysis_data?: Json
+          analysis_type?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          slug?: string
+          source_account_id?: string | null
+          source_run_id?: string | null
+          stats_data?: Json | null
+          tiktok_handle?: string | null
+          tiktok_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_analyses_source_account_id_fkey"
+            columns: ["source_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_analyses_source_run_id_fkey"
+            columns: ["source_run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rl_training_data: {
         Row: {
           created_at: string | null
