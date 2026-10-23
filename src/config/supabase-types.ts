@@ -330,6 +330,7 @@ export type Database = {
           offer_context: Json | null
           prompt_metadata: Json | null
           script_content: Json | null
+          source_video_analysis_id: string | null
           target_audience_psych: string | null
           title: string | null
           topic: string | null
@@ -343,6 +344,7 @@ export type Database = {
           offer_context?: Json | null
           prompt_metadata?: Json | null
           script_content?: Json | null
+          source_video_analysis_id?: string | null
           target_audience_psych?: string | null
           title?: string | null
           topic?: string | null
@@ -356,6 +358,7 @@ export type Database = {
           offer_context?: Json | null
           prompt_metadata?: Json | null
           script_content?: Json | null
+          source_video_analysis_id?: string | null
           target_audience_psych?: string | null
           title?: string | null
           topic?: string | null
@@ -363,6 +366,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "content_plans_source_video_analysis_id_fkey"
+            columns: ["source_video_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "video_analyses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "content_plans_user_id_fkey"
             columns: ["user_id"]
@@ -381,6 +391,7 @@ export type Database = {
           marketing_context: Json | null
           persona_description: string | null
           style_notes: string | null
+          survey_answers: Json | null
           tone_of_voice: string | null
           user_id: string | null
         }
@@ -392,6 +403,7 @@ export type Database = {
           marketing_context?: Json | null
           persona_description?: string | null
           style_notes?: string | null
+          survey_answers?: Json | null
           tone_of_voice?: string | null
           user_id?: string | null
         }
@@ -403,6 +415,7 @@ export type Database = {
           marketing_context?: Json | null
           persona_description?: string | null
           style_notes?: string | null
+          survey_answers?: Json | null
           tone_of_voice?: string | null
           user_id?: string | null
         }
@@ -1545,13 +1558,16 @@ export type Database = {
       }
       user_usage: {
         Row: {
+          academy_entry_type: string | null
           account_analysis_limit: number
           account_analysis_used: number
           campaigns_generated: number | null
           campaigns_limit: number | null
           created_at: string
           current_plan_id: string
+          has_starter_plan: boolean | null
           id: string
+          is_blocked: boolean
           last_reset_date: string
           next_reset_date: string
           no_analysis_email_sent: boolean | null
@@ -1573,13 +1589,16 @@ export type Database = {
           voice_clones_used: number
         }
         Insert: {
+          academy_entry_type?: string | null
           account_analysis_limit?: number
           account_analysis_used?: number
           campaigns_generated?: number | null
           campaigns_limit?: number | null
           created_at?: string
           current_plan_id?: string
+          has_starter_plan?: boolean | null
           id?: string
+          is_blocked?: boolean
           last_reset_date?: string
           next_reset_date?: string
           no_analysis_email_sent?: boolean | null
@@ -1601,13 +1620,16 @@ export type Database = {
           voice_clones_used?: number
         }
         Update: {
+          academy_entry_type?: string | null
           account_analysis_limit?: number
           account_analysis_used?: number
           campaigns_generated?: number | null
           campaigns_limit?: number | null
           created_at?: string
           current_plan_id?: string
+          has_starter_plan?: boolean | null
           id?: string
+          is_blocked?: boolean
           last_reset_date?: string
           next_reset_date?: string
           no_analysis_email_sent?: boolean | null
@@ -1712,6 +1734,73 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      video_analyses: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          finished_at: string | null
+          id: string
+          language: string
+          result: Json | null
+          run_id: string | null
+          status: string
+          tiktok_video_id: string | null
+          tiktok_video_id_ext: string | null
+          user_id: string | null
+          video_url: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          language?: string
+          result?: Json | null
+          run_id?: string | null
+          status?: string
+          tiktok_video_id?: string | null
+          tiktok_video_id_ext?: string | null
+          user_id?: string | null
+          video_url: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          language?: string
+          result?: Json | null
+          run_id?: string | null
+          status?: string
+          tiktok_video_id?: string | null
+          tiktok_video_id_ext?: string | null
+          user_id?: string | null
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_analyses_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_analyses_tiktok_video_id_fkey"
+            columns: ["tiktok_video_id"]
+            isOneToOne: false
+            referencedRelation: "tiktok_videos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_requests: {
         Row: {
